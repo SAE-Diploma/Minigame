@@ -11,10 +11,13 @@ AImageSwitcher::AImageSwitcher()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyPlane"));
+
 	RootComponent = Mesh;
 	
 	ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
 	StaticMesh = MeshAsset.Object;
+
+	
 	
 
 
@@ -25,29 +28,15 @@ void AImageSwitcher::BeginPlay()
 {
 	Super::BeginPlay();
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("World delta for current frame equals %f"), GetWorld()->TimeSeconds));
-	dynMaterial = UMaterialInstanceDynamic::Create(Material,Mesh);
-	SetActorRotation(Rotation);
 
-	
-	if (IsValid(StaticMesh) && IsValid(dynMaterial) && IsValid(Texture))
+	if (IsValid(StaticMesh))
 	{
 		Mesh->SetStaticMesh(StaticMesh);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		const int32 width = Texture->GetSizeX();
-		const int32 height = Texture->GetSizeY();
-		FVector3d size = FVector3d(width,height,0)/width;
-		Mesh->SetRelativeScale3D(size);
-		dynMaterial->SetTextureParameterValue("Texture",Texture);
-		// GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, size.ToString());
-		Mesh->SetMaterial(0,dynMaterial);
-	
+		RootComponent->SetRelativeRotation(Rotation);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Rotation.ToString());
+		SetTexture(CurrentIndex);
 	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Something not valid"));
-	}
-
-	
 }
 
 // Called every frame
@@ -63,5 +52,25 @@ void AImageSwitcher::SetIndex(int32 Index)
 	number.AppendInt(Index);
 	UE_LOG(LogTemp,Warning,TEXT("Index is: %s"),*number);
 }
+
+void AImageSwitcher::SetTexture(int32 Index)
+{
+	if (Textures.Num() > Index && IsValid(Material))
+	{
+		const int32 width = Textures[Index]->GetSizeX();
+		const int32 height = Textures[Index]->GetSizeY();
+		FVector3d size = FVector(width,height,1)/width*Scale;
+		
+		Mesh->SetWorldScale3D(size);
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, size.ToString());
+	
+		// set texture to material
+		dynMaterial = UMaterialInstanceDynamic::Create(Material,Mesh);
+		dynMaterial->SetTextureParameterValue("Texture",Textures[Index]);
+		Mesh->SetMaterial(0,dynMaterial);
+	}
+}
+
+
 
 

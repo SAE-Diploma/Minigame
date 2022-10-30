@@ -26,23 +26,33 @@ public:
 	UPROPERTY()
 	UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	UStaticMesh* StaticMesh;
 	
 	UPROPERTY(EditAnywhere)
 	UMaterial* Material;
+
+	UPROPERTY(EditAnywhere)
+	int32 Scale = 1;
 	
 	UPROPERTY(EditAnywhere)
-	UTexture2D* Texture;
+	TArray<UTexture2D*> Textures;
 
 	UPROPERTY(BlueprintReadWrite)
 	UMaterialInstanceDynamic* dynMaterial;
 
 	UPROPERTY(EditAnywhere)
 	FRotator Rotation; 
+
+	UPROPERTY(EditAnywhere)
+	int32 CurrentIndex = 1;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetIndex(int32 Index);
 
-
+private:
+	UFUNCTION(BlueprintCallable)
+	void SetTexture(int32 Index);
 };
+
+
