@@ -7,62 +7,61 @@ class IMediaTextureSample;
 // Sets default values
 AImageSwitcher::AImageSwitcher()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MyPlane"));
-
 	RootComponent = Mesh;
 	
 	ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
 	StaticMesh = MeshAsset.Object;
-
-	
-	
-
-
 }
 
-// Called when the game starts or when spawned
 void AImageSwitcher::BeginPlay()
 {
 	Super::BeginPlay();
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("World delta for current frame equals %f"), GetWorld()->TimeSeconds));
 
 	if (IsValid(StaticMesh))
 	{
+		// Initialize the mesh 
 		Mesh->SetStaticMesh(StaticMesh);
 		Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		RootComponent->SetRelativeRotation(Rotation);
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, Rotation.ToString());
 		SetTexture(CurrentIndex);
 	}
 }
 
-// Called every frame
 void AImageSwitcher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
+/**
+ * @brief Sets the CurrentIndex
+ * @param Index New Index
+ */
 void AImageSwitcher::SetIndex(int32 Index)
 {
-	FString number = "";
-	number.AppendInt(Index);
-	UE_LOG(LogTemp,Warning,TEXT("Index is: %s"),*number);
+	if (Index != CurrentIndex)
+	{
+		CurrentIndex = Index;
+		SetTexture(CurrentIndex);
+	}
 }
 
+/**
+ * @brief Set the texture by index
+ * @param Index Index of the Texture in the Textures Array
+ */
 void AImageSwitcher::SetTexture(int32 Index)
 {
 	if (Textures.Num() > Index && IsValid(Material))
 	{
-		const int32 width = Textures[Index]->GetSizeX();
-		const int32 height = Textures[Index]->GetSizeY();
-		FVector3d size = FVector(width,height,1)/width*Scale;
+		const int32 Width = Textures[Index]->GetSizeX();
+		const int32 Height = Textures[Index]->GetSizeY();
+		const FVector3d Size = FVector(Width,Height,1)/Width;
+		// GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, FString::Printf(TEXT("Size %f"), Scale));
 		
-		Mesh->SetWorldScale3D(size);
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, size.ToString());
+		Mesh->SetRelativeScale3D(Size*Scale);
 	
 		// set texture to material
 		dynMaterial = UMaterialInstanceDynamic::Create(Material,Mesh);

@@ -12,15 +12,12 @@ class MINIGAME_API AImageSwitcher : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AImageSwitcher();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY()
@@ -28,6 +25,9 @@ public:
 
 	UPROPERTY()
 	UStaticMesh* StaticMesh;
+	
+	UPROPERTY(BlueprintReadWrite)
+	UMaterialInstanceDynamic* dynMaterial;
 	
 	UPROPERTY(EditAnywhere)
 	UMaterial* Material;
@@ -38,19 +38,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<UTexture2D*> Textures;
 
-	UPROPERTY(BlueprintReadWrite)
-	UMaterialInstanceDynamic* dynMaterial;
+	UPROPERTY(EditAnywhere)
+	FRotator Rotation = FRotator(90,0,90); 
 
 	UPROPERTY(EditAnywhere)
-	FRotator Rotation; 
-
-	UPROPERTY(EditAnywhere)
-	int32 CurrentIndex = 1;
+	int32 CurrentIndex = 0;
 	
 	UFUNCTION(BlueprintCallable)
 	void SetIndex(int32 Index);
 
 private:
+	
 	UFUNCTION(BlueprintCallable)
 	void SetTexture(int32 Index);
 };
